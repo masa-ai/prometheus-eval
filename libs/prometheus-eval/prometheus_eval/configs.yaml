@@ -1,0 +1,38 @@
+vllm:
+  model_name: &model_name "prometheus-eval/prometheus-7b-v2.0"
+  model_dir: "/model"
+  sampling_params:
+    temperature: 0.75
+    top_p: 1
+    max_tokens: 256
+    presence_penalty: 1.15
+  async_engine:
+    gpu_memory_utilization: 0.95
+    max_model_len: 8096
+    enforce_eager: False
+    disable_log_stats: True
+    disable_log_requests: True
+    dtype: "half"
+
+
+cls:
+  retries: 3
+  allow_concurrent_inputs: 20
+  concurrency_limit: 20
+  enable_memory_snapshot: True
+  gpu: "A10G:1"
+
+generate:
+  keep_warm: True
+
+pretrained_model_name_or_path: *model_name
+container: &container "masa_prometheus2.0"
+template: |
+  [INST] <<SYS>>
+  {system}
+  <</SYS>>
+
+  {user} [/INST]
+  
+client:
+  app_name: *container
