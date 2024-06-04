@@ -1,4 +1,5 @@
-from typing import Any, Dict, List, Tuple, Union
+import warnings
+from typing import Any, Dict, List, Literal, Tuple, Union
 
 from fastchat.conversation import get_conv_template
 
@@ -13,8 +14,7 @@ from .utils import (
     batch_completions_with_retries,
     batch_relative_grade,
 )
-from .vllm import VLLM, MockVLLM
-import warnings
+from .vllm import VLLM, MockVLLM, OllamaVLLM
 
 
 class PrometheusEval:
@@ -25,7 +25,7 @@ class PrometheusEval:
         download_dir: str = None,
         absolute_grade_template: str = ABSOLUTE_PROMPT_WO_REF,
         relative_grade_template: str = RELATIVE_PROMPT_WO_REF,
-        is_test: bool = False,  # For debugging purposes
+        inference_engine: Literal["vllm", "test", "ollama"] = "ollama",
         dtype: str = "auto",
         **kwargs,
     ):
@@ -43,17 +43,22 @@ class PrometheusEval:
 
         self.absolute_grade_template = absolute_grade_template
         self.relative_grade_template = relative_grade_template
-        self.model = (
-            VLLM(
+        if inference_engine == "vllm":
+            self.model = VLLM(
                 model_id,
                 num_gpus=num_gpus,
                 download_dir=download_dir,
                 dtype=dtype,
                 **kwargs,
             )
-            if not is_test
-            else MockVLLM()
-        )
+        elif inference_engine == "test":
+            self.model = MockVLLM()
+        elif inference_engine == "ollama":
+            self.model = OllamaVLLM("edd/prometheus2.0")
+        else:
+            raise ValueError(
+                f"inference engine can only be either vllm, vanilla, or ollama, got {inference_engine}"
+            )
 
     def _get_conversation_prompt(self, messages: List[Dict[str, str]]):
         """
@@ -186,7 +191,7 @@ class PrometheusEval:
             ]
             input_ = self._get_conversation_prompt(messages)
             inputs.append(input_)
-        
+
         feedbacks, scores = batch_completions_with_retries(
             self.model,
             inputs,

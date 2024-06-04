@@ -1,5 +1,6 @@
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
+import requests
 from vllm import LLM, SamplingParams
 
 
@@ -49,6 +50,41 @@ class VLLM:
         return self.model.generate(prompts, params, use_tqdm=use_tqdm)
 
 
+class OllamaVLLM:
+    def __init__(self, name: str) -> None:
+        print("OllamaVLLM initialized")
+        self.name = name
+
+    def request_url(self, prompts: List[str]) -> List[Dict[str, Any]]:
+        url = "http://localhost:11434/api/generate"
+        results = []
+
+        for prompt in prompts:
+            data = {
+                "model": self.name,
+                "prompt": prompt,
+                "raw": True,
+                "stream": False,
+            }
+
+            response = requests.post(url, json=data)
+            results.append(response.json())  # Assuming response is a JSON object
+
+        return results
+
+    def completions(self, prompts: List[str], **kwargs) -> List[str]:
+        prompts = [prompt.strip() for prompt in prompts]
+
+        outputs = self.request_url(prompts)
+        outputs = [
+            output["response"] for output in outputs
+        ]  # Adjust based on actual response structure
+        return outputs
+
+    def generate(self, prompts: List[str], **kwargs):
+        return self.request_url(prompts)
+
+
 class MockVLLM:
     def __init__(
         self,
@@ -56,7 +92,10 @@ class MockVLLM:
         print("Mock VLLM initialized")
 
     def generate(
-        self, prompts: List[str], use_tqdm: bool = False, **kwargs,
+        self,
+        prompts: List[str],
+        use_tqdm: bool = False,
+        **kwargs,
     ) -> List[str]:
         results = []
         for prompt in prompts:
@@ -69,7 +108,10 @@ class MockVLLM:
         return results
 
     def completions(
-        self, prompts: List[str], use_tqdm: bool = False, **kwargs,
+        self,
+        prompts: List[str],
+        use_tqdm: bool = False,
+        **kwargs,
     ) -> List[str]:
         # This mirrors the generate function in the mock
         return self.generate(prompts, use_tqdm, **kwargs)

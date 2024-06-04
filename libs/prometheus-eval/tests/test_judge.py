@@ -1,6 +1,7 @@
 import pytest
 
 from prometheus_eval import PrometheusEval  # Adjust the import path as necessary
+from prometheus_eval.vllm import OllamaVLLM
 
 
 @pytest.fixture(scope="module")
@@ -11,6 +12,12 @@ def judge():
     yield judge_instance
     # If there's any cleanup needed, it can be done here
     print("Tearing down PrometheusEval")
+
+
+def test_ollama_vllm():
+    ollama_client = OllamaVLLM("edd/prometheus2.0")
+    result = ollama_client.generate(["I love you!"])
+    print(result)
 
 
 def test_init(judge):
