@@ -1,9 +1,9 @@
 from typing import Any, Dict, List, Optional, Union
-import modal
 
+import modal
 import requests
-from vllm import LLM, SamplingParams
 from loguru import logger
+from vllm import LLM, SamplingParams
 
 
 class VLLM:
@@ -51,20 +51,44 @@ class VLLM:
         params = SamplingParams(**kwargs)
         return self.model.generate(prompts, params, use_tqdm=use_tqdm)
 
-class ModalVLLM:
-    def __init__(self) -> None:
-        pass
 
-    def instantiate_modal_function(self, app_name: str = "masa_prometheus2.0", tag: str) -> modal.Function | None:
+class ModalVLLM:
+    def __init__(self, app_name: str, tag: str) -> None:
+        self.app_name: str = app_name
+        self.tag: str = tag
+        self.modal_function = self.instantiate_modal_function(
+            app_name=app_name, tag=tag
+        )
+
+    def instantiate_modal_function(
+        self, app_name: str, tag: str
+    ) -> modal.Function | None:
         try:
             modal_function = modal.Function.lookup(app_name=app_name, tag=tag)
         except modal.exception.NotFoundError as e:
-            logger.warning(
-                    f"{tag} not found in {app_name}, return None. Error: {e}"
-            )
+            logger.warning(f"{tag} not found in {app_name}, return None. Error: {e}")
             modal_function = None
             raise ValueError(f"{tag} not found in Modal {app_name}")
         return modal_function
+
+    def completions(
+        self,
+        prompts: List[str],
+        use_tqdm: bool = False,
+        **kwargs: Union[int, float, str],
+    ) -> List[str]:
+        return self.generate(prompts=prompts, use_tqdm=use_tqdm)
+
+    def generate(
+        self,
+        prompts: List[str],
+        use_tqdm: bool = False,
+    ) -> List[str]:
+        results = []
+        for prompt in prompts:
+            results.append(self.modal_function.remote(prompt))
+        return results
+
 
 class OllamaVLLM:
     def __init__(self, name: str) -> None:
@@ -97,7 +121,7 @@ class OllamaVLLM:
         ]  # Adjust based on actual response structure
         return outputs
 
-    def generate(self, prompts: List[str], **kwargs):
+    def generate(self, prompts: List[str], **kwargs) -> List[str]:
         return self.request_url(prompts)
 
 

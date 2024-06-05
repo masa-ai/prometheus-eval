@@ -14,7 +14,7 @@ from .utils import (
     batch_completions_with_retries,
     batch_relative_grade,
 )
-from .vllm import VLLM, MockVLLM, OllamaVLLM
+from .vllm import VLLM, MockVLLM, ModalVLLM, OllamaVLLM
 
 
 class PrometheusEval:
@@ -25,7 +25,7 @@ class PrometheusEval:
         download_dir: str = None,
         absolute_grade_template: str = ABSOLUTE_PROMPT_WO_REF,
         relative_grade_template: str = RELATIVE_PROMPT_WO_REF,
-        inference_engine: Literal["vllm", "test", "ollama"] = "ollama",
+        inference_engine: Literal["vllm", "test", "ollama", "modal"] = "modal",
         dtype: str = "auto",
         **kwargs,
     ):
@@ -55,6 +55,8 @@ class PrometheusEval:
             self.model = MockVLLM()
         elif inference_engine == "ollama":
             self.model = OllamaVLLM("edd/prometheus2.0")
+        elif inference_engine == "modal":
+            self.model = ModalVLLM("masa_prometheus2.0", "Model.generate")
         else:
             raise ValueError(
                 f"inference engine can only be either vllm, vanilla, or ollama, got {inference_engine}"
