@@ -1,7 +1,9 @@
 from typing import Any, Dict, List, Optional, Union
+import modal
 
 import requests
 from vllm import LLM, SamplingParams
+from loguru import logger
 
 
 class VLLM:
@@ -49,6 +51,20 @@ class VLLM:
         params = SamplingParams(**kwargs)
         return self.model.generate(prompts, params, use_tqdm=use_tqdm)
 
+class ModalVLLM:
+    def __init__(self) -> None:
+        pass
+
+    def instantiate_modal_function(self, app_name: str = "masa_prometheus2.0", tag: str) -> modal.Function | None:
+        try:
+            modal_function = modal.Function.lookup(app_name=app_name, tag=tag)
+        except modal.exception.NotFoundError as e:
+            logger.warning(
+                    f"{tag} not found in {app_name}, return None. Error: {e}"
+            )
+            modal_function = None
+            raise ValueError(f"{tag} not found in Modal {app_name}")
+        return modal_function
 
 class OllamaVLLM:
     def __init__(self, name: str) -> None:
