@@ -18,7 +18,7 @@ fastchat = ">=0.1.0"
 
 [project.optional-dependencies]
 modal = ["modal==0.62.198"]
-vllm = ["vllm==>=0.4.3"]
+vllm = ["vllm>=0.4.3"]
 
 [tool.setuptools.packages.find]
 where = ["."]
