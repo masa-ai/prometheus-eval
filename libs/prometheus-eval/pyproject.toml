@@ -14,7 +14,9 @@ authors = [
 requires-python = ">=3.10"
 
 [project.dependencies]
-fastchat = ">=0.1.0"
+dependencies = [
+  "fastchat>=0.1.0"
+]
 
 [project.optional-dependencies]
 modal = ["modal==0.62.198"]
