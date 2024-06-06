@@ -16,6 +16,18 @@
   ⚡ A repository for evaluating LLMs in generation tasks 🚀 ⚡ <br>
 </p>
 
+**Install**
+By default, you should use the modal version which can be installed by :
+
+```bash
+pip install "prometheus-eval[modal] @ git+https://github.com/masa-erland/prometheus-eval.git@main#egg=prometheus-eval&subdirectory=libs/prometheus-eval"
+```
+
+Or use the prometheus-eval default settings which is using vLLM that can be installed by :
+
+```bash
+pip install "prometheus-eval[vllm] @ git+https://github.com/masa-erland/prometheus-eval.git@main#egg=prometheus-eval&subdirectory=libs/prometheus-eval"
+```
 
 **Latest News** 🔥
 

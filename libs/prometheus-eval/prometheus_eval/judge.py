@@ -20,12 +20,12 @@ from .vllm import VLLM, MockVLLM, ModalVLLM, OllamaVLLM
 class PrometheusEval:
     def __init__(
         self,
+        inference_engine: Literal["vllm", "test", "ollama", "modal"],
         model_id: str = "prometheus-eval/prometheus-7b-v2.0",
         num_gpus: int = 1,
         download_dir: str = None,
         absolute_grade_template: str = ABSOLUTE_PROMPT_WO_REF,
         relative_grade_template: str = RELATIVE_PROMPT_WO_REF,
-        inference_engine: Literal["vllm", "test", "ollama", "modal"] = "modal",
         dtype: str = "auto",
         **kwargs,
     ):

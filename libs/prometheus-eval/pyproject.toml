@@ -1,26 +1,24 @@
-[tool.poetry]
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "prometheus-eval"
 version = "0.1.13"
-description = "A package for evaluating the performance of language models with Prometheus"
-authors = ["Juyoung Suk <juyoung@kaist.ac.kr>", "Seungone Kim <seungone@cmu.edu>"]
+description = "A package for evaluating the performance of language model with Prometheus"
 readme = "README.md"
+authors = [
+  { name = "Juyoung Suk", email = "juyoung@kaist.ac.kr" },
+  { name = "Seungone Kim", email = "seungone@cmu.edu" },
+]
+requires-python = ">=3.10"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-vllm = "^0.4.1"
-fastchat = "^0.1.0"
+[project.dependencies]
+fastchat = ">=0.1.0"
 
+[project.optional-dependencies]
+modal = ["modal==0.62.198"]
+vllm = ["vllm==>=0.4.3"]
 
-[tool.poetry.group.dev.dependencies]
-black = "^24.4.2"
-isort = "^5.13.2"
-autoflake = "^2.3.1"
-
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.2.0"
-pytest-cov = "^5.0.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.setuptools.packages.find]
+where = ["."]
