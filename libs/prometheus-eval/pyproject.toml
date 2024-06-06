@@ -12,13 +12,23 @@ authors = [
   { name = "Seungone Kim", email = "seungone@cmu.edu" },
 ]
 requires-python = ">=3.10"
-dependencies = [
-  "fastchat>=0.1.0"
-]
 
 [project.optional-dependencies]
-modal = ["modal==0.62.198"]
-vllm = ["vllm>=0.4.3"]
+default = [
+  "fastchat>=0.1.0",
+  "loguru>=0.7.2",
+  "tqdm>=4.66.4"
+]
+
+ollama = ["prometheus-eval[default]",
+"requests>=2.32.3"
+]
+
+modal = ["prometheus-eval[default]", 
+  "modal==0.62.198"]
+
+vllm = ["prometheus-eval[default]", 
+"vllm>=0.4.3"]
 
 [tool.setuptools.packages.find]
 where = ["."]

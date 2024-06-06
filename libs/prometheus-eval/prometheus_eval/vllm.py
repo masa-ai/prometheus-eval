@@ -1,10 +1,14 @@
 from typing import Any, Dict, List, Optional, Union
 
-import modal
-import requests
 from loguru import logger
-from vllm import LLM, SamplingParams
 
+def dynamic_import(module_name):
+    import importlib
+    try:
+        return importlib.import_module(module_name)
+    except ImportError as e:
+        print(f"Failed to import {module_name}: {str(e)}")
+        raise e
 
 class VLLM:
     def __init__(
@@ -17,9 +21,17 @@ class VLLM:
         max_model_len: int = 8192,
         **kwargs,
     ) -> None:
+        try:
+            global LLM, SamplingParams
+            vllm = dynamic_import("vllm")
+            LLM = vllm.LLM
+            SamplingParams = vllm.SamplingParams
+        except Exception as e:
+            raise ImportError(f"VLLM is not imported, to use `inference_engine` == 'vllm', you need to install vllm or install using the vllm setup")
+
         self.name: str = name
 
-        self.model: LLM = LLM(
+        self.model = LLM(
             model=self.name,
             tensor_parallel_size=num_gpus,
             dtype=dtype,
@@ -54,6 +66,12 @@ class VLLM:
 
 class ModalVLLM:
     def __init__(self, app_name: str, tag: str) -> None:
+        try:
+            global modal
+            modal = dynamic_import("modal")
+        except Exception as e:
+            raise ImportError(f"modal is not imported, to use `inference_engine` == 'modal', you need to install modal or install using the modal setup")
+
         self.app_name: str = app_name
         self.tag: str = tag
         self.modal_function = self.instantiate_modal_function(
@@ -62,7 +80,7 @@ class ModalVLLM:
 
     def instantiate_modal_function(
         self, app_name: str, tag: str
-    ) -> modal.Function | None:
+    ):
         try:
             modal_function = modal.Function.lookup(app_name=app_name, tag=tag)
         except modal.exception.NotFoundError as e:
@@ -92,6 +110,11 @@ class ModalVLLM:
 
 class OllamaVLLM:
     def __init__(self, name: str) -> None:
+        try:
+            global requests
+            requests = dynamic_import("requests")
+        except Exception as e:
+            raise ImportError(f"requests is not imported, to use `inference_engine` == 'ollama', you need to install requests or install using the ollama setup")
         print("OllamaVLLM initialized")
         self.name = name
 
