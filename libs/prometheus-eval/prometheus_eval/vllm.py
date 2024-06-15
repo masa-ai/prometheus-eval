@@ -112,6 +112,7 @@ class ModalVLLM:
             self,
             prompts: List[str],
             use_tqdm: bool = False,
+            **kwargs: Union[int, float, str],
     ) -> List[str]:
         return await self.async_generate(prompts=prompts, use_tqdm=use_tqdm)
 
