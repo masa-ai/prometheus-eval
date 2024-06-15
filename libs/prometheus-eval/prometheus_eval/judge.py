@@ -10,6 +10,7 @@ from .prompts import (
     RELATIVE_PROMPT_WO_REF,
 )
 from .utils import (
+    async_batch_completions_with_retries,
     batch_absolute_grade,
     batch_completions_with_retries,
     batch_relative_grade,
@@ -195,6 +196,74 @@ class PrometheusEval:
             inputs.append(input_)
 
         feedbacks, scores = batch_completions_with_retries(
+            self.model,
+            inputs,
+            mode="absolute",
+            params=params,
+        )
+
+        return feedbacks, scores
+    
+    async def async_absolute_grade(
+        self,
+        *,
+        instructions: List[str],
+        responses: List[str],
+        params: Dict[str, Any],
+        rubric: List[str] | str,
+        reference_answers: List[str] = None,
+    ) -> Tuple[List[str], List[int]]:
+        """
+        Grades a batch of responses absolutely based on the provided instructions and responses.
+
+        :param instructions: List of instructions corresponding to each response.
+        :param responses: List of responses to grade.
+        :param params: Parameters for the model completion requests.
+        :return: A tuple containing lists of feedbacks and scores.
+        """
+        if len(instructions) != len(responses):
+            raise ValueError(
+                "Length of instructions must match the length of responses"
+            )
+
+        # If rubric is a list, check its length matches the length of instructions
+        if isinstance(rubric, list) and len(rubric) != len(instructions):
+            raise ValueError("Length of rubric must match the length of instructions")
+        else:
+            rubric = [rubric] * len(
+                instructions
+            )  # Apply the same rubric to all if it's not a list
+
+        # Handle reference answers
+        if isinstance(reference_answers, list) and len(reference_answers) != len(
+            instructions
+        ):
+            raise ValueError(
+                "Length of reference answers must match the length of instructions"
+            )
+        else:
+            reference_answers = [None] * len(
+                instructions
+            )  # Default to None if not provided
+
+        inputs = []
+        for idx, (instruction, response) in enumerate(zip(instructions, responses)):
+            rubric_ = rubric[idx]
+            reference_answer = reference_answers[idx]
+            content = self.absolute_grade_template.format(
+                instruction=instruction,
+                response=response,
+                rubric=rubric_,
+                reference_answer=reference_answer,
+            )
+            messages = [
+                {"role": "system", "content": ABS_SYSTEM_PROMPT},
+                {"role": "user", "content": content},
+            ]
+            input_ = self._get_conversation_prompt(messages)
+            inputs.append(input_)
+
+        feedbacks, scores = await async_batch_completions_with_retries(
             self.model,
             inputs,
             mode="absolute",
