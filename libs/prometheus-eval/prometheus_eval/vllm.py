@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
@@ -107,6 +108,25 @@ class ModalVLLM:
             results.append(self.modal_function.remote(prompt))
         return results
 
+    async def async_completions(
+            self,
+            prompts: List[str],
+            use_tqdm: bool = False,
+    ) -> List[str]:
+        return await self.async_generate(prompts=prompts, use_tqdm=use_tqdm)
+
+    async def async_generate(
+            self, 
+            prompts: List[str],
+            use_tqdm: bool = False,
+    ) -> List[str]:
+        tasks = []
+        for prompt in prompts:
+            tasks.append(self.modal_function.remote.aio(prompt))
+        
+        results = await asyncio.gather(*tasks)
+        return results
+            
 
 class OllamaVLLM:
     def __init__(self, name: str) -> None:
