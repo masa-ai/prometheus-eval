@@ -104,16 +104,22 @@ class Model:
             sampling_params,
             request_id,
         )
-        index = 0
+
+        #### Code below if you want to actual stream
+        # index = 0
+        # concat_string = ""
+
+        # async for output in result_generator:
+        #     if output.outputs[0].text and "\ufffd" == output.outputs[0].text[-1]:
+        #         continue
+        #     text_delta = output.outputs[0].text[index:]
+        #     index = len(output.outputs[0].text)
+        #     concat_string += text_delta
         concat_string = ""
         async for output in result_generator:
-            if output.outputs[0].text and "\ufffd" == output.outputs[0].text[-1]:
-                continue
-            text_delta = output.outputs[0].text[index:]
-            index = len(output.outputs[0].text)
-            concat_string += text_delta
+            concat_string = output
 
-        return concat_string
+        return concat_string.outputs[0].text
 
     @modal.exit()
     def stop_engine(self):
