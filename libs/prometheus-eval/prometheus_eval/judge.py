@@ -272,6 +272,79 @@ class PrometheusEval:
 
         return feedbacks, scores
 
+    async def async_relative_grade(
+        self,
+        *,
+        instructions: List[str],
+        responses_A: List[str],
+        responses_B: List[str],
+        params: Dict[str, Any],
+        rubric: List[str] | str,
+        reference_answers: List[str] = None,
+    ) -> Tuple[List[str], List[int]]:
+        """
+        Grades a batch of responses absolutely based on the provided instructions and responses.
+
+        :param instructions: List of instructions for each paired responses.
+        :param responses_A: List of first responses in each pair.
+        :param responses_B: List of second responses in each pair.
+        :param params: Additional parameters for the model completion requests.
+        :return: A tuple containing lists of feedbacks and scores.
+        """
+        if len(instructions) != len(responses_A) or len(responses_A) != len(
+            responses_B
+        ):
+            raise ValueError(
+                "Length of instructions, responses_A, and responses_B must all match"
+            )
+
+        # If rubric is a list, check its length matches the length of instructions
+        if isinstance(rubric, list) and len(rubric) != len(instructions):
+            raise ValueError("Length of rubric must match the length of instructions")
+        else:
+            rubric = [rubric] * len(
+                instructions
+            )  # Apply the same rubric to all if it's not a list
+
+        # Handle reference answers
+        if isinstance(reference_answers, list) and len(reference_answers) != len(
+            instructions
+        ):
+            raise ValueError(
+                "Length of reference answers must match the length of instructions"
+            )
+        else:
+            reference_answers = [None] * len(
+                instructions
+            )  # Default to None if not provided
+
+        inputs = []
+        for idx, (instruction, response_A, response_B) in enumerate(zip(instructions, responses_A, responses_B)):
+            rubric_ = rubric[idx]
+            reference_answer = reference_answers[idx]
+            content = self.relative_grade_template.format(
+                instruction=instruction,
+                response_A=response_A,
+                response_B=response_B,
+                rubric=rubric_,
+                reference_answer=reference_answer,
+            )
+            messages = [
+                {"role": "system", "content": ABS_SYSTEM_PROMPT},
+                {"role": "user", "content": content},
+            ]
+            input_ = self._get_conversation_prompt(messages)
+            inputs.append(input_)
+
+        feedbacks, scores = await async_batch_completions_with_retries(
+            self.model,
+            inputs,
+            mode="relative",
+            params=params,
+        )
+
+        return feedbacks, scores
+
     def relative_grade(
         self,
         *,
