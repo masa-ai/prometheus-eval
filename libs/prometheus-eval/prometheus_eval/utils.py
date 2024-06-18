@@ -60,11 +60,11 @@ def batch_absolute_grade(model: VLLM, inputs: List[str], params):
         feedbacks.append(feedback.strip())
         scores.append(int(score.strip()))
 
-    assert len(inputs) == len(
-        feedbacks
+    assert (
+        len(inputs) == len(feedbacks)
     ), f"Length of inputs ({len(inputs)}) does not match length of feedbacks ({len(feedbacks)})"
-    assert len(inputs) == len(
-        scores
+    assert (
+        len(inputs) == len(scores)
     ), f"Length of inputs ({len(inputs)}) does not match length of scores ({len(scores)})"
 
     return feedbacks, scores
@@ -121,11 +121,11 @@ def batch_relative_grade(model: VLLM, inputs: List[str], params):
         feedbacks.append(feedback.strip())
         scores.append(score.strip())
 
-    assert len(inputs) == len(
-        feedbacks
+    assert (
+        len(inputs) == len(feedbacks)
     ), f"Length of inputs ({len(inputs)}) does not match length of feedbacks ({len(feedbacks)})"
-    assert len(inputs) == len(
-        scores
+    assert (
+        len(inputs) == len(scores)
     ), f"Length of inputs ({len(inputs)}) does not match length of scores ({len(scores)})"
 
     return feedbacks, scores
@@ -143,9 +143,10 @@ def _parse_output(outputs, mode: str):
                 return feedback, result
     return None, None
 
+
 async def async_batch_completions_with_retries(
     model: VLLM | ModalVLLM | OllamaVLLM,
-    inputs,
+    inputs: list[dict[str, str]],
     mode: str,
     max_retries: int = 10,
     params: dict = None,
@@ -180,9 +181,11 @@ async def async_batch_completions_with_retries(
         retries += 1
         print(f"Retrying failed batches: Attempt {retries}/{max_retries}")
         if isinstance(model, ModalVLLM):
-            retry_outputs = await model.async_completions(inputs, **params, use_tqdm=True)
+            retry_outputs = await model.async_completions(
+                to_retry_inputs, **params, use_tqdm=True
+            )
         else:
-            retry_outputs = model.completions(inputs, **params, use_tqdm=True)
+            retry_outputs = model.completions(to_retry_inputs, **params, use_tqdm=True)
 
         new_to_retry_inputs = []
         new_to_retry_indices = []
@@ -218,6 +221,7 @@ async def async_batch_completions_with_retries(
             scores.append(None)
 
     return feedbacks, scores
+
 
 def batch_completions_with_retries(
     model: VLLM,
