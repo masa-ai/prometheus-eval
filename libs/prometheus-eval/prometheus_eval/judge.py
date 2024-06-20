@@ -203,7 +203,7 @@ class PrometheusEval:
         )
 
         return feedbacks, scores
-    
+
     async def async_absolute_grade(
         self,
         *,
@@ -319,7 +319,9 @@ class PrometheusEval:
             )  # Default to None if not provided
 
         inputs = []
-        for idx, (instruction, response_A, response_B) in enumerate(zip(instructions, responses_A, responses_B)):
+        for idx, (instruction, response_A, response_B) in enumerate(
+            zip(instructions, responses_A, responses_B)
+        ):
             rubric_ = rubric[idx]
             reference_answer = reference_answers[idx]
             content = self.relative_grade_template.format(
