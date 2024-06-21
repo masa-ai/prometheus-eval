@@ -3,13 +3,16 @@ from typing import Any, Dict, List, Optional, Union
 
 from loguru import logger
 
+
 def dynamic_import(module_name):
     import importlib
+
     try:
         return importlib.import_module(module_name)
     except ImportError as e:
         print(f"Failed to import {module_name}: {str(e)}")
         raise e
+
 
 class VLLM:
     def __init__(
@@ -28,7 +31,9 @@ class VLLM:
             LLM = vllm.LLM
             SamplingParams = vllm.SamplingParams
         except Exception as e:
-            raise ImportError(f"VLLM is not imported, to use `inference_engine` == 'vllm', you need to install vllm or install using the vllm setup")
+            raise ImportError(
+                f"VLLM is not imported, to use `inference_engine` == 'vllm', you need to install vllm or install using the vllm setup"
+            )
 
         self.name: str = name
 
@@ -70,8 +75,10 @@ class ModalVLLM:
         try:
             global modal
             modal = dynamic_import("modal")
-        except Exception as e:
-            raise ImportError(f"modal is not imported, to use `inference_engine` == 'modal', you need to install modal or install using the modal setup")
+        except Exception as _:
+            raise ImportError(
+                f"modal is not imported, to use `inference_engine` == 'modal', you need to install modal or install using the modal setup"
+            )
 
         self.app_name: str = app_name
         self.tag: str = tag
@@ -79,9 +86,7 @@ class ModalVLLM:
             app_name=app_name, tag=tag
         )
 
-    def instantiate_modal_function(
-        self, app_name: str, tag: str
-    ):
+    def instantiate_modal_function(self, app_name: str, tag: str):
         try:
             modal_function = modal.Function.lookup(app_name=app_name, tag=tag)
         except modal.exception.NotFoundError as e:
@@ -109,25 +114,25 @@ class ModalVLLM:
         return results
 
     async def async_completions(
-            self,
-            prompts: List[str],
-            use_tqdm: bool = False,
-            **kwargs: Union[int, float, str],
+        self,
+        prompts: List[str],
+        use_tqdm: bool = False,
+        **kwargs: Union[int, float, str],
     ) -> List[str]:
         return await self.async_generate(prompts=prompts, use_tqdm=use_tqdm)
 
     async def async_generate(
-            self, 
-            prompts: List[str],
-            use_tqdm: bool = False,
+        self,
+        prompts: List[str],
+        use_tqdm: bool = False,
     ) -> List[str]:
         tasks = []
         for prompt in prompts:
             tasks.append(self.modal_function.remote.aio(prompt))
-        
+
         results = await asyncio.gather(*tasks)
         return results
-            
+
 
 class OllamaVLLM:
     def __init__(self, name: str) -> None:
@@ -135,7 +140,9 @@ class OllamaVLLM:
             global requests
             requests = dynamic_import("requests")
         except Exception as e:
-            raise ImportError(f"requests is not imported, to use `inference_engine` == 'ollama', you need to install requests or install using the ollama setup")
+            raise ImportError(
+                f"requests is not imported, to use `inference_engine` == 'ollama', you need to install requests or install using the ollama setup"
+            )
         print("OllamaVLLM initialized")
         self.name = name
 
