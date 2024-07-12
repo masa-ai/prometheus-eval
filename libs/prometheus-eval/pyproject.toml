@@ -18,7 +18,7 @@ default = ["fastchat>=0.1.0", "loguru>=0.7.2", "tqdm>=4.66.4"]
 
 ollama = ["prometheus-eval[default]", "requests>=2.32.3"]
 
-modal = ["prometheus-eval[default]", "asyncio", "modal==0.62.198"]
+modal = ["prometheus-eval[default]", "asyncio", "modal==0.63.13"]
 
 vllm = ["prometheus-eval[default]", "vllm>=0.4.3"]
 

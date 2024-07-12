@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, Dict, List, Literal, Tuple, Union
+from typing import Any, Dict, List, Literal, Tuple
 
 from fastchat.conversation import get_conv_template
 
@@ -11,9 +11,7 @@ from .prompts import (
 )
 from .utils import (
     async_batch_completions_with_retries,
-    batch_absolute_grade,
     batch_completions_with_retries,
-    batch_relative_grade,
 )
 from .vllm import VLLM, MockVLLM, ModalVLLM, OllamaVLLM
 

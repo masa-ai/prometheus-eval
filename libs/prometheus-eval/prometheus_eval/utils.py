@@ -104,7 +104,7 @@ def batch_relative_grade(model: VLLM, inputs: List[str], params):
         try:
             log_prob_a = _get_logprob_of_token(prompt_logprobs_list[0][-1], "A")
             log_prob_b = _get_logprob_of_token(prompt_logprobs_list[1][-1], "B")
-        except:
+        except Exception as _:
             log_prob_a = random.random()
             log_prob_b = random.random()
 

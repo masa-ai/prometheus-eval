@@ -30,9 +30,10 @@ class VLLM:
             vllm = dynamic_import("vllm")
             LLM = vllm.LLM
             SamplingParams = vllm.SamplingParams
-        except Exception as e:
+        except Exception as _:
             raise ImportError(
-                f"VLLM is not imported, to use `inference_engine` == 'vllm', you need to install vllm or install using the vllm setup"
+                "VLLM is not imported, to use `inference_engine` == 'vllm',"
+                " you need to install vllm or install using the vllm setup"
             )
 
         self.name: str = name
@@ -77,7 +78,8 @@ class ModalVLLM:
             modal = dynamic_import("modal")
         except Exception as _:
             raise ImportError(
-                f"modal is not imported, to use `inference_engine` == 'modal', you need to install modal or install using the modal setup"
+                "modal is not imported, to use `inference_engine` == 'modal',"
+                " you need to install modal or install using the modal setup"
             )
 
         self.app_name: str = app_name
@@ -139,9 +141,10 @@ class OllamaVLLM:
         try:
             global requests
             requests = dynamic_import("requests")
-        except Exception as e:
+        except Exception as _:
             raise ImportError(
-                f"requests is not imported, to use `inference_engine` == 'ollama', you need to install requests or install using the ollama setup"
+                "requests is not imported, to use `inference_engine` == 'ollama',"
+                " you need to install requests or install using the ollama setup"
             )
         print("OllamaVLLM initialized")
         self.name = name
