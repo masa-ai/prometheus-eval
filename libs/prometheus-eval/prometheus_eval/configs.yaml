@@ -26,7 +26,7 @@ generate:
   keep_warm: True
 
 pretrained_model_name_or_path: *model_name
-container: &container "masa_prometheus2.0"
+container: &container "prometheus2.0"
 template: |
   [INST] <<SYS>>
   {system}
