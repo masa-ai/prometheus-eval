@@ -55,7 +55,7 @@ class PrometheusEval:
         elif inference_engine == "ollama":
             self.model = OllamaVLLM("edd/prometheus2.0")
         elif inference_engine == "modal":
-            self.model = ModalVLLM("masa_prometheus2.0", "Model.generate")
+            self.model = ModalVLLM("prometheus2.0", "Model.generate")
         else:
             raise ValueError(
                 f"inference engine can only be either vllm, vanilla, or ollama, got {inference_engine}"
